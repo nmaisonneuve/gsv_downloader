@@ -1,0 +1,4 @@
+tmp/*
+images/*
+Gemfile.lock
+.DS_STORE
