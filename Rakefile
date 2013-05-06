@@ -1,14 +1,25 @@
 require "bundler/gem_tasks"
-require "./lib/gsv_cutter.rb"
+require "./lib/gsv_downloader.rb"
 
 namespace :gsv do
+
 	desc "scrawl"
 	task :scrawl do
-	 require 'perftools'
-	  PerfTools::CpuProfiler.start("tmp/add_numbers_profile") do
+	 	# require 'perftools'
+	  # PerfTools::CpuProfiler.start("tmp/add_numbers_profile") do
+	  # end
+	  area_validator = lambda { |json_response|
+				description = json_response["Location"]["region"]
+				description[/Paris/].nil? == false
+		}
 
+  	options = {
+			area_name: "paris",
+			area_validator: area_validator
+		}
 
-	 end
+		manager = GSVManager.new(options)
+		manager.scrawl("Np2alC97cgynvV_ZpJQZNA")
 	end
 
 	desc "download panorama e.g. rake gsv:download_image panoid=Np2alC97cgynvV_ZpJQZNA zoom=3"

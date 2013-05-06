@@ -5,7 +5,7 @@ require 'gsv_downloader/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "gsv_downloader"
-  spec.version       = GsvDownloader::VERSION
+  spec.version       = GSVDownloader::VERSION
   spec.authors       = ["nicolas maisonneuve"]
   spec.email         = ["n.maisonneuve@gmail.com"]
   spec.description   = %q{GSV downloader}

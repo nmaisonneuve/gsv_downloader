@@ -6,6 +6,7 @@ Require redis http://redis.io as light database
 
 gem install gsv_downloader
 
+```ruby
 require 'gsv_downloader'
 
 options = {
@@ -31,12 +32,13 @@ options = {
 	sub_dir_size: 100 # default value = 1000
 }
 
-
 paris_area  = GSVManager.new(options)
 
 # scrawl and save the metadata of GSV images geolocated within an Area.
-# It uses a depth-first navigation of the street network provided by the GSV metadata.It stops to scrawl futher links when the area_validator return a false response (see the area validator function in the options).
-The scrawler needs a start point starts from the panoID = "Np2alC97cgynvV_ZpJQZNA".
+# It uses a depth-first navigation of the street network provided by the GSV metadata.
+# It stops to scrawl futher links when the area_validator return a false response
+# (see the area validator function in the options).
+# The scrawler needs a start point starts from the panoID = "Y76d7989a9A9x9".
 
 paris_area.scrawl_metadata("Np2alC97cgynvV_ZpJQZNA")
 
@@ -60,13 +62,14 @@ pano_ids.each do |pano_id|
 end
 
 # or let the manager find out the all missing images to download
-and organise the download directory
+# and organise the download directory
 paris_area.download_images()
 
 # you can also check the filename associated with each panoID
 # the format of the filename is currently the following:
-filename =  {dest_dir}/{pano_id}_zoom_{zoom_level}.jpg
+# filename =  {dest_dir}/{pano_id}_zoom_{zoom_level}.jpg
 # if null , the images has not been downloaded
 pano_ids.each do |pano_id|
 	filename = paris_area.get_filename(panoID)
 end
+```
