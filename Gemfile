@@ -4,7 +4,6 @@ source 'https://rubygems.org'
 # database
 gem 'redis'
 gem "hiredis", "~> 0.4.5"
-gem "em-synchrony"
 
 gem 'subexec'
 gem "perftools.rb"

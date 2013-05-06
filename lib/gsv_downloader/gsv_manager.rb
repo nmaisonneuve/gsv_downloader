@@ -16,16 +16,27 @@ class GSVManager
 	#			sub_dir_size: 1000
 	#		}
 	def initialize(options)
-		@downloader = DownloaderAsync.new
+		@downloader = ImageDownloaderAsync.new
+		@options = options
 		@db = DBRedis.new(options[:area_name])
-		@scrawler = SimpleCrawler.new(@db, options[:area_validator])
+		@scrawler = SimpleCrawler.new(options[:area_validator],@db)
 		@chunk_size = options[:sub_dir_size] || 1000
 		@zoom_level = options[:zoom_level] || 3
 		@dest_dir = options[:dest_dir] || "./images/#{options[:area_name]}"
 	end
 
-	def scrawl_metadata(from_pano_id = nil)
-			@scrawler.start(from_pano_id)
+	def crawl_metadata(from_pano_id = nil)
+			if (from_pano_id.nil?)
+				pano_ids = @db.to_scrawl
+				@scrawler.start(pano_ids) if pano_ids.size > 0
+			else
+				@scrawler.start([from_pano_id])
+			end
+	end
+
+	def reset_crawl
+		puts "#{@db.scrawled_count()} panoramas scrawled, #{@db.nb_panoramas()} withing the area"
+		@db.reset_crawl
 	end
 
 	# shortcut
@@ -33,11 +44,11 @@ class GSVManager
 		@downloader.fetch(pano_id, zoom_level, dest_dir)
 	end
 
-	def download_images()
+	def download_missing_images()
 		pano_ids = @db.images_to_download()
 
 		progress = ProgressBar.create(
-			:title => "images download for #{area_name}",
+			:title => "images download for #{@options[:area_name]}",
 			:total => pano_ids.size)
 
 		active_chunk_dir if (pano_ids.size > 1000)
@@ -49,8 +60,8 @@ class GSVManager
 			:in_threads => 10,
 			:finish => lambda { |i, item| progress.increment }) do |pano_id|
 				# change directory
-				if @chunk_dir and (i % chunk_size) == 0
-					current_dir = change_dir(@dest_dir, i / chunk_size)
+				if @chunk_dir and (i % @chunk_size) == 0
+					current_dir = change_dir(@dest_dir, i / @chunk_size )
 					i += 1
 				end
 				@downloader.fetch(pano_id, @zoom_level, current_dir)

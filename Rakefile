@@ -19,7 +19,20 @@ namespace :gsv do
 		}
 
 		manager = GSVManager.new(options)
-		manager.scrawl("Np2alC97cgynvV_ZpJQZNA")
+		manager.reset_crawl
+		manager.crawl_metadata("Np2alC97cgynvV_ZpJQZNA")
+	end
+
+	desc "download all panoramas"
+	task :download_all_images do
+		options = {
+			area_name: "paris",
+			image_zoom: 3,
+			dest_dir: "./paris",
+			sub_dir_size: 1000
+		}
+		manager = GSVManager.new(options)
+		manager.download_missing_images()
 	end
 
 	desc "download panorama e.g. rake gsv:download_image panoid=Np2alC97cgynvV_ZpJQZNA zoom=3"
@@ -31,8 +44,5 @@ namespace :gsv do
 		manager.download_image(panoID,zoom.to_i)
 	end
 
-	desc "download all panoramas"
-	task :download_all_images => ["standalone:connection"] do
 
-	end
 end

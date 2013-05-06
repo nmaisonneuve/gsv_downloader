@@ -5,18 +5,21 @@ class DBRedis
 	def initialize(area_id = "paris")
 		@redis = Redis.new(:driver =>  :hiredis) #:ruby
 		@area = area_id
-		reset_scrawl
 	end
 
 	def mark_as_scrawled(panoID)
 		@redis.sadd("area:#{@area}:scrawled", panoID)
 	end
 
+  def mark_to_scrawl(panoID)
+  	@redis.sadd("area:#{@area}:to_scrawl", panoID)
+  end
+
 	def scrawled?(panoID)
 		@redis.sismember("area:#{@area}:scrawled", panoID)
 	end
 
-	def reset_scrawl
+	def reset_crawl
 		@redis.del("area:#{@area}:scrawled")
 	end
 
@@ -24,7 +27,7 @@ class DBRedis
     @redis.scard("area:#{@area}:scrawled")
   end
 
-  def size()
+  def nb_panoramas()
 		@redis.scard("area:#{@area}")
 	end
 
@@ -32,7 +35,7 @@ class DBRedis
 		@redis.smembers("area:#{@area}")
 	end
 
-	def add(panoID)
+	def add_to_area(panoID)
 		@redis.sadd("area:#{@area}", panoID)
 	end
 
@@ -41,11 +44,10 @@ class DBRedis
 	end
 
 	def add_pano(panoID, data)
-		@redis.pipelined do
-			mark_as_scrawled(panoID)
-			set_metadata(panoID, data)
-			add(panoID)
-		end
+		# @redis.pipelined do
+			set_metadata(panoID, data) unless metadata_exists?(panoID)
+			add_to_area(panoID)
+		# end
 	end
 
 	def set_filename(panoID, fullname)
@@ -58,12 +60,11 @@ class DBRedis
 
 	def images_to_download()
 		pano_ids = []
-		@redis.list().each do |pano_id|
-			pano_ids << pano_id unless @redis.exists("filepath:#{panoID}")
+		list().each do |pano_id|
+			pano_ids << pano_id unless @redis.exists("filepath:#{pano_id}")
 		end
 		pano_ids
 	end
-
 
 	def get_metadata(panoID)
 		@redis.get(panoID)

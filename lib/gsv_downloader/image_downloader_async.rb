@@ -1,5 +1,5 @@
 require "typhoeus"
-require "downloader.rb"
+require "image_downloader.rb"
 
 ##
 # Google Street View Images Downloader
@@ -7,7 +7,7 @@ require "downloader.rb"
 
 # Google Street View Image Downloader
 # Asynchronous version
-class DownloaderAsync < Downloader
+class ImageDownloaderAsync < ImageDownloader
 
 	def download_tiles(panoID, zoom_level)
 
@@ -40,7 +40,7 @@ class DownloaderAsync < Downloader
 	  	end
 	  	#puts "downloaded tile  x=#{x},y=#{y}"
 	  else
-	    raise Exception.new("tile #{x}-#{y} not downloaded")
+	    raise Exception.new("tile #{filename} not downloaded")
 	  end
 	end
 end

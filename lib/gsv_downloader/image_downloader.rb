@@ -5,7 +5,7 @@ require "subexec"
 ##
 # Google Street View Images Downloader
 #
-class Downloader
+class ImageDownloader
 
 	def initialize(tmp_path = "./tmp")
 		@tmp_path = tmp_path

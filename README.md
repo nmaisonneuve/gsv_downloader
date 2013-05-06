@@ -7,7 +7,17 @@ Require redis http://redis.io as light database
 gem install gsv_downloader
 
 ```ruby
+require 'rubygems'
 require 'gsv_downloader'
+
+# the area validator function to delimite the scrawling
+# to a given (geographical) area
+# @param json_response  = the metadata of a PanoID (json)
+# @return false or true whether this panoID is accepted or not.
+area_validator = lambda { |json_response|
+		description = json_response["Location"]["region"]
+		description[/Paris/].nil? == false
+}
 
 options = {
 
@@ -15,10 +25,7 @@ options = {
 	area_name: "paris",
 
 	# area validator to delimit the scrawling to a given area
-	area_validator: lambda { |json_response|
-		description = json_response["Location"]["region"]
-		description[/Paris/].nil? == false
-		},
+	area_validator: area_validator ,
 
 	# zoom level of the panoramic images
 	image_zoom: 3, # default value = 3
@@ -36,11 +43,11 @@ paris_area  = GSVManager.new(options)
 
 # scrawl and save the metadata of GSV images geolocated within an Area.
 # It uses a depth-first navigation of the street network provided by the GSV metadata.
-# It stops to scrawl futher links when the area_validator return a false response
+# It stops to scrawl futher links when the area_validator return false
 # (see the area validator function in the options).
 # The scrawler needs a start point starts from the panoID = "Y76d7989a9A9x9".
 
-paris_area.scrawl_metadata("Np2alC97cgynvV_ZpJQZNA")
+paris_area.crawl_metadata("Np2alC97cgynvV_ZpJQZNA")
 
 # number of panoramas saved for this area
 paris_area.nb_panoramas()

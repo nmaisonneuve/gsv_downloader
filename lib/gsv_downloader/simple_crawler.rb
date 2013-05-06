@@ -3,7 +3,7 @@ require 'time'
 require "typhoeus"
 require 'json'
 
-class SimpleScrawler
+class SimpleCrawler
 
   def initialize (area_validator, db)
     #Typhoeus::Config.memoize = false
@@ -14,16 +14,26 @@ class SimpleScrawler
     @max = 200
   end
 
-  def start(panoID)
-		scrawl(panoID)
+  def start(pano_ids)
+    pano_ids.each do |pano_id|
+      crawl(pano_id)
+    end
+    redis.subscribe(:queue) do |on|
+      on.message do |channel, msg|
+        crawl(panoID)
+      end
+    end
+
     @hydra.run
   end
 
   # Create a connection and its callback.
-  def scrawl(panoID)
+  def crawl(panoID)
+
     # p panoID
     url = "https://cbks1.google.com/cbk?output=json&dm=1&pm=1&v=4&cb_client=maps_sv&fover=2&onerr=3&panoid=#{panoID}"
-    #p url
+
+    # p url
 		request = Typhoeus::Request.new(url, headers: {
 			'User-Agent' => "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.10) Gecko/20100915 Ubuntu/10.04 (lucid) Firefox/3.6.10",
 			"accept-charset" => "ISO-8859-1,utf-8;q=0.7,*;q=0.3" })
@@ -43,23 +53,25 @@ class SimpleScrawler
   	json = extract_json(response)
 		panoID = json["Location"]["panoId"]
 
- 		# inside the area to scrawl? and not processed yet?
-    if @area_validator.call(json_data)
-     # @db.add_pano(panoID, response)
+    unless (@db.scrawled?(panoID))
 
-     # @db.mark_as_scrawled(panoID)
-     # @db.add_to_area(panoID)
-      @stats.count
-      @db.set_metadata(panoID, response) #unless (!@db.metadata_exists?(panoID))
+      @db.mark_as_scrawled(panoID)
 
-      # for each valid and new link
-  		json["Links"].each do |link_json|
-				link_id = link_json["panoId"]
-      #  if (link_json["scene"] == "0") and (!@db.scrawled?(link_id))
-			#	  scrawl(link_id) if @stats.processed < @max
-         scrawl("Np2alC97cgynvV_ZpJQZNA")
-       #  end
-			end
+   		# inside the area to scrawl? and not processed yet?
+      if @area_validator.call(json)
+        @db.add_pano(panoID, response)
+        @stats.count
+
+        # for each valid and new link
+    		json["Links"].each do |link_json|
+  				link_id = link_json["panoId"]
+          if (link_json["scene"] == "0") and (!@db.scrawled?(link_id))
+            #$redis.publish()
+           #@db.mark_to_scrawl(link_id)
+  				 crawl(link_id)
+          end
+  			end
+      end
     end
   end
 
