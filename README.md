@@ -36,8 +36,10 @@ options = {
 paris_area  = GSVManager.new(options)
 
 # scrawl and save the metadata of GSV images geolocated within an Area.
-# It uses a depth-first navigation of the street network provided by the GSV metadata.It stops to scrawl futher links when the area_validator return a false response (see the area validator function in the options).
-The scrawler needs a start point starts from the panoID = "Y76d7989a9A9x9".
+# It uses a depth-first navigation of the street network provided by the GSV metadata.
+# It stops to scrawl futher links when the area_validator return a false response 
+# (see the area validator function in the options).
+# The scrawler needs a start point starts from the panoID = "Y76d7989a9A9x9".
 
 paris_area.scrawl_metadata("Y76d7989a9A9x9")
 
