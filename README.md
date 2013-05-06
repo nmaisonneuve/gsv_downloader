@@ -10,7 +10,7 @@ gem install gsv_downloader
 require 'rubygems'
 require 'gsv_downloader'
 
-# the area validator function to delimite the scrawling
+# the area validator function to delimite the crawling
 # to a given (geographical) area
 # @param json_response  = the metadata of a PanoID (json)
 # @return false or true whether this panoID is accepted or not.
@@ -43,9 +43,9 @@ paris_area  = GSVManager.new(options)
 
 # scrawl and save the metadata of GSV images geolocated within an Area.
 # It uses a depth-first navigation of the street network provided by the GSV metadata.
-# It stops to scrawl futher links when the area_validator return false
+# It stops to crawl futher links when the area_validator return false
 # (see the area validator function in the options).
-# The scrawler needs a start point starts from the panoID = "Y76d7989a9A9x9".
+# The crawler needs a start point starts from the panoID = "Y76d7989a9A9x9".
 
 paris_area.crawl_metadata("Np2alC97cgynvV_ZpJQZNA")
 
