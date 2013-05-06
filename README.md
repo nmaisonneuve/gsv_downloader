@@ -6,8 +6,8 @@ Require redis http://redis.io as light database
 
 gem install gsv_downloader
 
+```ruby
 require 'gsv_downloader'
-
 
 options = {
 
@@ -71,3 +71,4 @@ filename =  {dest_dir}/{pano_id}_zoom_{zoom_level}.jpg
 pano_ids.each do |pano_id|
 	filename = paris_area.get_filename(panoID)
 end
+```
