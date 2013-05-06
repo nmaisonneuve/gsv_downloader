@@ -63,12 +63,12 @@ pano_ids.each do |pano_id|
 end
 
 # or let the manager find out the all missing images to download
-and organise the download directory
+# and organise the download directory
 paris_area.download_images()
 
 # you can also check the filename associated with each panoID
 # the format of the filename is currently the following:
-filename =  {dest_dir}/{pano_id}_zoom_{zoom_level}.jpg
+# filename =  {dest_dir}/{pano_id}_zoom_{zoom_level}.jpg
 # if null , the images has not been downloaded
 pano_ids.each do |pano_id|
 	filename = paris_area.get_filename(panoID)
