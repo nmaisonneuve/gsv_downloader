@@ -8,7 +8,6 @@ gem install gsv_downloader
 
 require 'gsv_downloader'
 
-
 options = {
 
 	# area name
@@ -21,15 +20,15 @@ options = {
 		},
 
 	# zoom level of the panoramic images
-	image_zoom: 3,
+	image_zoom: 3, # default value = 3
 
 	# main directory where the images will be downloaded
-	dest_dir: "./paris",
+	dest_dir: "./paris",  # default value = "./{area_name}
 
 	# number of images in a subdirecty
 	# since lots of images can be downloaded
 	# automatic subdirectories are generated
-	sub_dir_size: 1000
+	sub_dir_size: 100 # default value = 1000
 }
 
 
@@ -37,9 +36,9 @@ paris_area  = GSVManager.new(options)
 
 # scrawl and save the metadata of GSV images geolocated within an Area.
 # It uses a depth-first navigation of the street network provided by the GSV metadata.It stops to scrawl futher links when the area_validator return a false response (see the area validator function in the options).
-The scrawler needs a start point starts from the panoID = "Y76d7989a9A9x9".
+The scrawler needs a start point starts from the panoID = "Np2alC97cgynvV_ZpJQZNA".
 
-paris_area.scrawl_metadata("Y76d7989a9A9x9")
+paris_area.scrawl_metadata("Np2alC97cgynvV_ZpJQZNA")
 
 # number of panoramas saved for this area
 paris_area.nb_panoramas()
