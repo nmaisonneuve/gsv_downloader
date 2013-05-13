@@ -17,7 +17,7 @@ class ImageDownloader
 		end
 	end
 
-	def fetch(panoID,  zoom_level = 4, dest_dir = "./images")
+	def download(panoID,  zoom_level = 4, dest_dir = "./images")
 
 		dest_filename = create_filename(panoID, zoom_level, dest_dir)
 
@@ -26,7 +26,7 @@ class ImageDownloader
 		if Pathname.new(dest_filename).exist?
 			puts "images #{panoID} already existing in #{dest_dir}"
 		else
-			puts "fetching #{panoID} to #{dest_dir}"
+			# puts "fetching #{panoID} to #{dest_dir}"
 			# download each tile
 			tiles_filenames = download_tiles(panoID, zoom_level)
 

@@ -18,12 +18,6 @@ class SimpleCrawler
     pano_ids.each do |pano_id|
       crawl(pano_id)
     end
-    redis.subscribe(:queue) do |on|
-      on.message do |channel, msg|
-        crawl(panoID)
-      end
-    end
-
     @hydra.run
   end
 
@@ -54,10 +48,9 @@ class SimpleCrawler
 		panoID = json["Location"]["panoId"]
 
     unless (@db.scrawled?(panoID))
-
       @db.mark_as_scrawled(panoID)
 
-   		# inside the area to scrawl? and not processed yet?
+   		# inside the area to scrawl?
       if @area_validator.call(json)
         @db.add_pano(panoID, response)
         @stats.count
@@ -72,6 +65,8 @@ class SimpleCrawler
           end
   			end
       end
+    else
+      puts "already crawled"
     end
   end
 

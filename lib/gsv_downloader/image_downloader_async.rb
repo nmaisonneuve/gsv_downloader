@@ -19,7 +19,7 @@ class ImageDownloaderAsync < ImageDownloader
 			}
 		end
 
-		hydra = Typhoeus::Hydra.new()
+		hydra = Typhoeus::Hydra.new(:max_concurrency => 10)
 		data.each do | datum|
 			request = Typhoeus::Request.new(datum[:url])
 			request.on_complete do |response|

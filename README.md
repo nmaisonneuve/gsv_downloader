@@ -1,8 +1,12 @@
+
 Google Street View Downloader
 
-## installation ##
+## Description ##
+Crawl and save Google Street view network (metadata + images) of a given geographical area. The metadata are saved into a redis db and the image in a directory
 
-Require redis http://redis.io as light database
+
+## installation ##
+[http://redis.io redis] as light database
 
 gem install gsv_downloader
 
@@ -10,13 +14,13 @@ gem install gsv_downloader
 require 'rubygems'
 require 'gsv_downloader'
 
-# the area validator function to delimite the crawling
-# to a given (geographical) area
-# @param json_response  = the metadata of a PanoID (json)
-# @return false or true whether this panoID is accepted or not.
+# first we define a function to delimite the geographical area to crawl
+# It stops to crawl further links when the area_validator return false
+# @param json_response  = the metadata received from of a PanoID (json)
+# @return false or true whether this panoID is valid or not
 area_validator = lambda { |json_response|
 		description = json_response["Location"]["region"]
-		description[/Paris/].nil? == false
+		!description[/Paris/].nil?
 }
 
 options = {
@@ -24,38 +28,43 @@ options = {
 	# area name
 	area_name: "paris",
 
-	# area validator to delimit the scrawling to a given area
+	# area validator to delimit the crawling within a given area
+	area_validator: area_validator ,
+}
+
+# more advanced options
+options = {
+
+	# area name
+	area_name: "paris",
+
+	# area validator to delimit the crawling within a given area
 	area_validator: area_validator ,
 
-	# zoom level of the panoramic images
+	# zoom level of the panoramic images saved
 	image_zoom: 3, # default value = 3
 
 	# main directory where the images will be downloaded
-	dest_dir: "./paris",  # default value = "./{area_name}
+	dest_dir: "./paris",  # default value = "./{area_name}"
 
-	# number of images in a subdirecty
-	# since lots of images can be downloaded
-	# automatic subdirectories are generated
+	# nb of images for each subdirectory
+	# (since lots of images can be downloaded
+	# automatic subdirectories are generated)
 	sub_dir_size: 100 # default value = 1000
 }
 
 paris_area  = GSVManager.new(options)
 
-# scrawl and save the metadata of GSV images geolocated within an Area.
-# It uses a depth-first navigation of the street network provided by the GSV metadata.
-# It stops to crawl futher links when the area_validator return false
-# (see the area validator function in the options).
-# The crawler needs a start point starts from the panoID = "Y76d7989a9A9x9".
-
+# crawl and save the metadata of all GSV images
+# within the area delimited by the area_validator.
+# The first crawl needs the panoID of a location
 paris_area.crawl_metadata("Np2alC97cgynvV_ZpJQZNA")
 
-# number of panoramas saved for this area
+# number of saved panoramas (meta_data) within this area
 paris_area.nb_panoramas()
 
-# Array of of panora IDs
-pano_ids = paris_area.list_pano_ids()
-
-# get the metadata related to each panoID
+# get the raw json metadata related to each saved panoID
+pano_ids = paris_area.list_panoids()
 pano_ids.each do |pano_id|
 	meta_data = paris_area.get_meta_data(panoID)
 	p JSON.parse(meta_data)

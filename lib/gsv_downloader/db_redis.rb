@@ -2,7 +2,7 @@ require 'redis'
 
 class DBRedis
 
-	def initialize(area_id = "paris")
+	def initialize(area_id)
 		@redis = Redis.new(:driver =>  :hiredis) #:ruby
 		@area = area_id
 	end
@@ -21,6 +21,7 @@ class DBRedis
 
 	def reset_crawl
 		@redis.del("area:#{@area}:scrawled")
+		@redis.del("area:#{@area}:to_scrawl")
 	end
 
   def scrawled_count()
