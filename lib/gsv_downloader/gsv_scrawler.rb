@@ -22,7 +22,7 @@ class GSVScrawler
   end
 
   # Create a connection and its callback.
-  def scrawl(panoID)
+  def crawl(panoID)
     url = "https://cbks0.google.com/cbk?output=json&dm=1&pm=1&v=4&cb_client=maps_sv&fover=2&onerr=3&panoid=#{panoID}"
     #p url
 		request = Typhoeus::Request.new(url, headers: {

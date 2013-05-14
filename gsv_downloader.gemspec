@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = GSVDownloader::VERSION
   spec.authors       = ["nicolas maisonneuve"]
   spec.email         = ["n.maisonneuve@gmail.com"]
-  spec.description   = %q{GSV downloader}
-  spec.summary       = %q{GSV downloader}
+  spec.description   = %q{Crawl and save Google Street view network (metadata + images) of a given geographical area. The metadata are saved into a redis db and the image in a directory}
+  spec.summary       = %q{GSV Downloader}
   spec.homepage      = ""
   spec.license       = "MIT"
 

@@ -9,6 +9,7 @@ class ImageDownloader
 
 	def initialize(tmp_path = "./tmp")
 		@tmp_path = tmp_path
+		FileUtils.mkdir_p(@tmp_path)
 		@conn = Faraday.new(:url => "http://cbk1.google.com") do |faraday|
 			faraday.request :retry, max: 3, interval: 2
 			#faraday.response :logger

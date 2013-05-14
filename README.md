@@ -64,7 +64,7 @@ paris_area.crawl_metadata("Np2alC97cgynvV_ZpJQZNA")
 paris_area.nb_panoramas()
 
 # get the raw json metadata related to each saved panoID
-pano_ids = paris_area.list_panoids()
+pano_ids = paris_area.panoramas()
 pano_ids.each do |pano_id|
 	meta_data = paris_area.get_meta_data(panoID)
 	p JSON.parse(meta_data)

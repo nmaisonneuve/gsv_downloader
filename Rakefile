@@ -11,7 +11,38 @@ namespace :gsv do
 		dest_dir = ENV["dest"] || "./images"
 
 		downloader = ImageDownloader.new
-		downloader.download_image(panoID,zoom.to_i,".")
+		downloader.download(panoID,zoom.to_i,".")
+	end
+
+	task :metadata do
+
+		panoID = ENV["panoid"] || "Np2alC97cgynvV_ZpJQZNA"
+		db = DBRedis.new
+
+		p JSON.parse(db.get_metadata(panoID))
+
+
+		end
+
+	desc "list"
+	task :list do
+  	options = {
+			area_name: "paris"
+		}
+
+		manager = GSVManager.new(options)
+		i = 0
+		kml = "<?xml version='1.0' encoding='utf-8' ?><kml xmlns='http://www.opengis.net/kml/2.2'><Document>"
+		manager.panoramas_index.each do |panoID|
+			i += 1
+			json = JSON.parse(manager.get_metadata(panoID))
+			lat = json["Location"]["lat"]
+			lng = json["Location"]["lng"]
+			kml << "<Placemark><description>#{panoID}</description><Point><coordinates>#{lng}, #{lat}, 0</coordinates></Point></Placemark>\n"
+		end
+		kml << "</Document></kml>"
+		File.open("test.kml", 'w') {|f| f.write(kml) }
+		puts "#{i} panoID"
 	end
 
 	desc "crawl"
@@ -21,6 +52,7 @@ namespace :gsv do
 	  # end
 	  area_validator = lambda { |json_response|
 				description = json_response["Location"]["region"]
+			#	p json_response["Location"]
 				description[/Paris/].nil? == false
 		}
 
@@ -30,8 +62,9 @@ namespace :gsv do
 		}
 
 		manager = GSVManager.new(options)
-		manager.reset_crawl
-		manager.crawl_metadata("Np2alC97cgynvV_ZpJQZNA")
+		# manager.reset_crawl
+	  # manager.crawl_metadata("Np2alC97cgynvV_ZpJQZNA")
+		manager.crawl_metadata()
 	end
 
 	desc "download all panoramas"

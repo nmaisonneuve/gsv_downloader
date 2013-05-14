@@ -24,9 +24,15 @@ class GSVManager
 		@dest_dir = options[:dest_dir] || "./images/#{options[:area_name]}"
 	end
 
+	def panoramas_index
+		@db.list()
+	end
+
 	def crawl_metadata(from_pano_id = nil)
+			puts "#{@db.scrawled_count()} panoramas scrawled, #{@db.nb_panoramas()} withing the area"
 			if (from_pano_id.nil?)
-				pano_ids = @db.to_crawl
+				pano_ids = @db.not_scrawled()
+				puts " #{pano_ids.size} panorama in the queue"
 				@scrawler.start(pano_ids) if pano_ids.size > 0
 			else
 				@scrawler.start([from_pano_id])
@@ -36,6 +42,10 @@ class GSVManager
 	def reset_crawl
 		puts "#{@db.scrawled_count()} panoramas scrawled, #{@db.nb_panoramas()} withing the area"
 		@db.reset_crawl
+	end
+
+	def get_metadata(pano_id)
+		@db.get_metadata(pano_id)
 	end
 
 	def download_missing_images()
