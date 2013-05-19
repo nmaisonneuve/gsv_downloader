@@ -1,0 +1,53 @@
+require "typhoeus"
+require 'faraday_middleware'
+require 'typhoeus/adapters/faraday'
+
+class MetaDataDownloader
+
+	BASE_URL = "https://cbks1.google.com/cbk?output=json&dm=1&pm=1&v=4&cb_client=maps_sv&fover=2&onerr=3"
+	def initialize()
+		#    # Typhoeus::Config.memoize = false
+	  # @conn = Faraday.new(:url => "http://cbk1.google.com") do |faraday|
+	  #    faraday.request :retry
+	  #    faraday.response :raise_error
+	  #    faraday.response :json #:content_type => /\bjson$/
+	  #    faraday.adapter  :typhoeus
+	  #  end
+		@hydra = Typhoeus::Hydra.new
+	end
+
+	def start()
+		@hydra.run
+	end
+
+	# enqueue a download
+  def download(panoID)
+
+    url = "#{BASE_URL}&panoid=#{panoID}"
+
+    # p url
+		request = Typhoeus::Request.new(url, headers: {
+			'User-Agent' => "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.10) Gecko/20100915 Ubuntu/10.04 (lucid) Firefox/3.6.10",
+			"accept-charset" => "ISO-8859-1,utf-8;q=0.7,*;q=0.3" })
+
+    request.on_complete do |response|
+    	if response.success?
+      # Process the links in the response.
+      	yield(response.body)
+      else
+      	 	puts "error "
+      	 #	p response
+         # raise Exception.new
+      end
+    end
+    @hydra.queue request
+  end
+
+  def download_batch(panoIDs)
+		@hydra = Typhoeus::Hydra.new
+		panoIDs.each do |panoID|
+			download(panoID)
+		end
+		start()
+	end
+end

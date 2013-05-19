@@ -1,16 +1,13 @@
 require "typhoeus"
 require "image_downloader.rb"
 
-##
-# Google Street View Images Downloader
-# Multi-thread version for downlaoding tiles
-
 # Google Street View Image Downloader
-# Asynchronous version
-class ImageDownloaderAsync < ImageDownloader
+# multi_thread version (get the tiles in a multithread way)
+class ImageDownloaderParallel < ImageDownloader
 
 	def download_tiles(panoID, zoom_level)
 
+		# prepare the information for each tile
 		data = []
 		get_tiles(zoom_level) do |x, y|
 			data << {
@@ -19,7 +16,7 @@ class ImageDownloaderAsync < ImageDownloader
 			}
 		end
 
-		hydra = Typhoeus::Hydra.new(:max_concurrency => 10)
+		# process
 		data.each do | datum|
 			request = Typhoeus::Request.new(datum[:url])
 			request.on_complete do |response|
@@ -29,8 +26,7 @@ class ImageDownloaderAsync < ImageDownloader
 		end
 		hydra.run
 
-		tiles_filename = data.collect{ |datum| datum[:filename]}
-		tiles_filename
+		data.collect{ |datum| datum[:filename]}
 	end
 
 	def process_response(response, filename)
@@ -38,7 +34,6 @@ class ImageDownloaderAsync < ImageDownloader
 	    open(filename, 'wb') do |file|
 	    	file.write(response.body)
 	  	end
-	  	#puts "downloaded tile  x=#{x},y=#{y}"
 	  else
 	    raise Exception.new("tile #{filename} not downloaded")
 	  end

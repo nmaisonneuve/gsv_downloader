@@ -16,9 +16,9 @@ class GSVManager
 	#		}
 	def initialize(options)
 		@options = options
-		@downloader = ImageDownloader.new
+		@downloader = ImageDownloaderParallel.new
 		@db = DBRedis.new(options[:area_name])
-		@scrawler = SimpleCrawler.new(options[:area_validator],@db)
+		@scrawler = Crawler.new(options[:area_validator],@db)
 		@images_per_subfolder = options[:sub_dir_size] || 1000
 		@zoom_level = options[:zoom_level] || 3
 		@dest_dir = options[:dest_dir] || "./images/#{options[:area_name]}"

@@ -4,25 +4,33 @@ require "subexec"
 
 ##
 # Google Street View Images Downloader
+#  gsv_images = imageDonwloader.new
+#  gsv_images.download("3ed539212sSA",2, "./images")
 #
 class ImageDownloader
 
 	def initialize(tmp_path = "./tmp")
-		@tmp_path = tmp_path
-		FileUtils.mkdir_p(@tmp_path)
+
+		set_tmp_dir(tmp_path)
+
 		@conn = Faraday.new(:url => "http://cbk1.google.com") do |faraday|
 			faraday.request :retry, max: 3, interval: 2
-			#faraday.response :logger
 			faraday.response :raise_error
 			faraday.adapter  Faraday.default_adapter
 		end
 	end
 
+	def set_tmp_dir(tmp_path)
+		@tmp_path = tmp_path
+		FileUtils.mkdir_p(@tmp_path)
+	end
+
+
 	def download(panoID,  zoom_level = 4, dest_dir = "./images")
 
-		dest_filename = create_filename(panoID, zoom_level, dest_dir)
-
 		FileUtils.mkdir_p(dest_dir) #create dir if not already present
+
+		dest_filename = create_filename(panoID, zoom_level, dest_dir)
 
 		if Pathname.new(dest_filename).exist?
 			puts "images #{panoID} already existing in #{dest_dir}"
@@ -32,15 +40,12 @@ class ImageDownloader
 			tiles_filenames = download_tiles(panoID, zoom_level)
 
 			# combine tiles
-			#puts "combining tiles"
 			combine_tiles(tiles_filenames, zoom_level, panoID)
 
 			# crop panorama
-			#puts "croping panorama"
 			crop_pano(panoID, zoom_level, dest_filename)
 
 			# remove tmps
-			# puts "removing tmp files"
 			FileUtils.rm_f("#{@tmp_path}/#{panoID}.jpg")
 			tiles_filenames.each do |tile_filename|
 		  	FileUtils.rm_f(tile_filename)
@@ -115,8 +120,8 @@ class ImageDownloader
 		"#{dest_dir}/#{pano_id}_zoom_#{zoom_level}.jpg"
 	end
 
-	def image_exists?(panoID, zoom_level, dest_dir)
-		filename = create_filename(panoID,zoom_level,dest_dir)
-		Pathname.new(filename).exist?
-	end
+	# def image_exists?(panoID, zoom_level, dest_dir)
+	#	filename = create_filename(panoID,zoom_level,dest_dir)
+	#	Pathname.new(filename).exist?
+	# end
 end

@@ -1,5 +1,5 @@
 # Optional Statistics
-# - number of processed images
+# - number of processed events
 # - speed/seconds
 class Statistics
 	def initialize()

@@ -4,8 +4,7 @@ require "./lib/gsv_downloader.rb"
 namespace :gsv do
 
 	desc "download a specific image e.g. rake gsv:download_image panoid=Np2alC97cgynvV_ZpJQZNA zoom=3 dest=./images"
-	task :download_image do
-
+	task :image do
 		panoID = ENV["panoid"] || "Np2alC97cgynvV_ZpJQZNA"
 		zoom = ENV["zoom"] || "3"
 		dest_dir = ENV["dest"] || "./images"
@@ -14,15 +13,27 @@ namespace :gsv do
 		downloader.download(panoID,zoom.to_i,".")
 	end
 
+	desc "get the metadata of given panoID e.g. rake gsv:image panoid=Np2alC97cgynvV_ZpJQZNA"
 	task :metadata do
-
 		panoID = ENV["panoid"] || "Np2alC97cgynvV_ZpJQZNA"
 		db = DBRedis.new
-
 		p JSON.parse(db.get_metadata(panoID))
+	end
 
-
+	desc "get the metadata of given panoID e.g. rake gsv:image panoid=Np2alC97cgynvV_ZpJQZNA"
+	task :metadata_list do
+		require 'csv'
+		downloader = MetaDataDownloader.new
+		db = DBRedis.new
+		CSV.foreach("../gsv_cutter/data/detections/pano_not_found.csv") do |row|
+			downloader.download(row) do | response|
+				panoID = JSON.parse(response)["Location"]["panoId"]
+				puts "panoID found #{panoID}"
+				db.add_pano(panoID, response)
+			end
 		end
+		downloader.start()
+	end
 
 	desc "list"
 	task :list do

@@ -3,7 +3,6 @@ require 'redis'
 class DBRedis
 
 	def initialize(area_id = nil)
-
 		@redis = Redis.new(:driver =>  :hiredis) #:ruby
 		@area = area_id
 	end
@@ -52,7 +51,6 @@ class DBRedis
 	def add_to_area(panoID)
 		@redis.sadd("area:#{@area}", panoID)
 	end
-
 
 	def metadata_exists?(panoID)
 		@redis.exists(panoID)

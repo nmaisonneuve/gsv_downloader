@@ -58,6 +58,8 @@ paris_area  = GSVManager.new(options)
 # crawl and save the metadata of all GSV images
 # within the area delimited by the area_validator.
 # The first crawl needs the panoID of a location
+# https://cbks0.google.com/cbk?output=json&dm=1&pm=1&v=4&cb_client=maps_sv&fover=2&onerr=3&panoid=Np2alC97cgynvV_ZpJQZNA
+
 paris_area.crawl_metadata("Np2alC97cgynvV_ZpJQZNA")
 
 # number of saved panoramas (meta_data) within this area
