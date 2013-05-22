@@ -9,6 +9,7 @@ class ImageDownloaderParallel < ImageDownloader
 
 		# prepare the information for each tile
 		data = []
+		filenames = []
 		get_tiles(zoom_level) do |x, y|
 			data << {
 				url: "http://cbk1.google.com/cbk?output=tile&zoom=#{zoom_level}&x=#{x}&y=#{y}&v=4&panoid=#{panoID}",

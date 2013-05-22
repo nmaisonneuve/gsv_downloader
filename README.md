@@ -4,6 +4,8 @@ Google Street View Downloader
 ## Description ##
 Crawl and save Google Street view network (metadata + images) of a given geographical area. The metadata are saved into a redis db and the image in a directory
 
+# (speed: meta_data of 200 panoramic images processed / seconds  (= the complete meta_data of all the images of Paris are crawled in about 10 mins)
+
 
 ## installation ##
 [http://redis.io redis] as light database
@@ -23,6 +25,7 @@ area_validator = lambda { |json_response|
 		!description[/Paris/].nil?
 }
 
+# basic/required crawling options
 options = {
 
 	# area name
@@ -59,8 +62,9 @@ paris_area  = GSVManager.new(options)
 # within the area delimited by the area_validator.
 # The first crawl needs the panoID of a location
 # https://cbks0.google.com/cbk?output=json&dm=1&pm=1&v=4&cb_client=maps_sv&fover=2&onerr=3&panoid=Np2alC97cgynvV_ZpJQZNA
-
-paris_area.crawl_metadata("Np2alC97cgynvV_ZpJQZNA")
+# Speed 200 meta_data processed / seconds  (= Paris is crawled in 10 mins)
+start_panoID = "Np2alC97cgynvV_ZpJQZNA"
+paris_area.crawl_metadata(start_panoID)
 
 # number of saved panoramas (meta_data) within this area
 paris_area.nb_panoramas()
@@ -73,21 +77,22 @@ pano_ids.each do |pano_id|
 end
 
 # download manually each related GSV image
+img_downloader = ImageDownloader.new
 pano_ids.each do |pano_id|
-	paris_area.download_image(pano_id)
+	img_downloader.download(pano_id)
 	# or with specific options zoom_level = 4, dest_dir = "./foo"
 	# paris_area.download_image(pano_id, zoom_level, dest_dir)
 end
 
+# parallel/multi-thread pool version, much faster
+# download GSV images in parallel
+img_downloader = ImageDownloaderParallel.new
+pano_ids.each do |pano_id|
+	img_downloader.download(pano_id)
+end
+img_downloader.start()
+
 # or let the manager find out the all missing images to download
 # and organise the download directory
 paris_area.download_images()
-
-# you can also check the filename associated with each panoID
-# the format of the filename is currently the following:
-# filename =  {dest_dir}/{pano_id}_zoom_{zoom_level}.jpg
-# if null , the images has not been downloaded
-pano_ids.each do |pano_id|
-	filename = paris_area.get_filename(panoID)
-end
 ```

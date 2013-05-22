@@ -1,4 +1,3 @@
-# Load libraries
 require 'json'
 require 'meta_data_downloader.rb'
 

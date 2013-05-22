@@ -35,7 +35,7 @@ class MetaDataDownloader
       # Process the links in the response.
       	yield(response.body)
       else
-      	 	puts "error "
+      	 puts "error "
       	 #	p response
          # raise Exception.new
       end

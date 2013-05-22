@@ -14,6 +14,7 @@ class GSVManager
 	#			dest_dir: "./paris",
 	#			sub_dir_size: 1000
 	#		}
+
 	def initialize(options)
 		@options = options
 		@downloader = ImageDownloaderParallel.new
@@ -55,32 +56,30 @@ class GSVManager
 			:title => "images download for #{@options[:area_name]}",
 			:total => pano_ids.size)
 
-		active_chunk_dir if (pano_ids.size > 1000)
-
 		# by default  1 thread but you can increase the multi-tread
 		i = 0
-		current_dir = @dest_dir
 		Parallel.each(pano_ids,
 			:in_threads => 20,
 			:finish => lambda { |i, item| progress.increment }) do |pano_id|
-				# change directory
-				if @chunk_dir and (i % @images_per_subfolder) == 0
-					current_dir = change_dir(@dest_dir, i / @images_per_subfolder )
-					i += 1
-				end
-				@downloader.download(pano_id, @zoom_level, current_dir)
+				@downloader.download(pano_id, @zoom_level, get_dir(i))
+				i += 1
 		end
 	end
 
 	private
 
-	def active_chunk_dir
-		@chunk_dir = true
-	end
+	# get the related directory for the ith element
+	def get_dir(i)
 
-	def  change_dir(dest_dir, i)
-		dir_dest = "#{dest_dir}/#{i}"
-		FileUtils.mkdir_p(dir_dest)
+	  # if we used sub directory
+	  dir_dest = if @images_per_subfolder > 0
+	  	sub_idx = i / @images_per_subfolder
+			"#{@dest_dir}/#{sub_idx}"
+		else
+			@dest_dir
+		end
+
+		FileUtils.mkdir_p(dir_dest) unless FileUtils.exists?(dir_dest)
 		dir_dest
 	end
 end

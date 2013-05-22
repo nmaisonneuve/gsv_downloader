@@ -36,7 +36,7 @@ class DBRedis
 		@redis.del("area:#{@area}")
 	end
 
-  def scrawled_count()
+  def crawled_count()
     @redis.scard("area:#{@area}:crawled")
   end
 
