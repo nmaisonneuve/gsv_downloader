@@ -1,17 +1,20 @@
-
 Google Street View Downloader
 
 ## Description ##
 Crawl and save Google Street view network (metadata + images) of a given geographical area. The metadata are saved into a redis db and the image in a directory
+(speed: meta_data of 200 panoramic images processed / seconds  (= the complete meta_data of all the images of Paris are crawled in about 10 mins)
 
-# (speed: meta_data of 200 panoramic images processed / seconds  (= the complete meta_data of all the images of Paris are crawled in about 10 mins)
+
+## requirement ##
+you need to install 
+- [http://redis.io redis] as light database
+- [http://www.imagemagick.org/ imagemagick]  
+
+brew install redis
+brew install imagemagick
 
 
-## installation ##
-[http://redis.io redis] as light database
-
-gem install gsv_downloader
-
+## example ##
 ```ruby
 require 'rubygems'
 require 'gsv_downloader'
