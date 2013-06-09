@@ -5,6 +5,11 @@ require "image_downloader.rb"
 # multi_thread version (get the tiles in a multithread way)
 class ImageDownloaderParallel < ImageDownloader
 
+	def initialize(tmp_path = "./tmp")
+		set_tmp_dir(tmp_path)
+		@hydra = Typhoeus::Hydra.new
+	end
+
 	def download_tiles(panoID, zoom_level)
 
 		# prepare the information for each tile
@@ -23,10 +28,9 @@ class ImageDownloaderParallel < ImageDownloader
 			request.on_complete do |response|
 				process_response(response, datum[:filename])
     	end
-    	hydra.queue request
+    	@hydra.queue request
 		end
-		hydra.run
-
+		@hydra.run
 		data.collect{ |datum| datum[:filename]}
 	end
 

@@ -56,6 +56,13 @@ namespace :gsv do
 		puts "#{i} panoID"
 	end
 
+	desc "stats"
+	task :stats do
+		area = ENV["area"] || "paris_v2"
+		db = DBRedis.new (area)
+		puts "nb of panorama in #{area}: #{db.nb_panoramas()}"
+	end
+
 	desc "crawl"
 	task :crawl do
 	 	# require 'perftools'
@@ -68,13 +75,14 @@ namespace :gsv do
 		}
 
   	options = {
-			area_name: "paris",
+			area_name: "paris_v2",
 			area_validator: area_validator
 		}
 
 		manager = GSVManager.new(options)
-		# manager.reset_crawl
-	  # manager.crawl_metadata("Np2alC97cgynvV_ZpJQZNA")
+		#manager.reset_crawl
+		# Np2alC97cgynvV_ZpJQZNA
+	  # manager.crawl_metadata("C9n1hj8bYQ_sZdPiXylGoA")
 		manager.crawl_metadata()
 	end
 

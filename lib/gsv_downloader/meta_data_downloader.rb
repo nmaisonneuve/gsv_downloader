@@ -1,10 +1,14 @@
 require "typhoeus"
-require 'faraday_middleware'
-require 'typhoeus/adapters/faraday'
+# require 'faraday_middleware'
+# require 'typhoeus/adapters/faraday'
 
 class MetaDataDownloader
 
-	BASE_URL = "https://cbks1.google.com/cbk?output=json&dm=1&pm=1&v=4&cb_client=maps_sv&fover=2&onerr=3"
+#	BASE_URL = "https://cbks1.google.com/cbk?output=json&it=all&dmz=1&pmz=1&v=4&cb_client=apiv3&hl=en-US&oe=utf-8&token=78246"
+
+	BASE_URL = "https://cbks1.google.com/cbk?output=json&v=4&cb_client=apiv3&hl=en-US&oe=utf-8"
+
+
 	def initialize()
 		#    # Typhoeus::Config.memoize = false
 	  # @conn = Faraday.new(:url => "http://cbk1.google.com") do |faraday|
@@ -24,20 +28,21 @@ class MetaDataDownloader
   def download(panoID)
 
     url = "#{BASE_URL}&panoid=#{panoID}"
-
+    # p panoID
     # p url
 		request = Typhoeus::Request.new(url, headers: {
 			'User-Agent' => "Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.10) Gecko/20100915 Ubuntu/10.04 (lucid) Firefox/3.6.10",
 			"accept-charset" => "ISO-8859-1,utf-8;q=0.7,*;q=0.3" })
 
     request.on_complete do |response|
+
     	if response.success?
       # Process the links in the response.
       	yield(response.body)
       else
       	 puts "error "
       	 #	p response
-         # raise Exception.new
+         raise Exception.new
       end
     end
     @hydra.queue request

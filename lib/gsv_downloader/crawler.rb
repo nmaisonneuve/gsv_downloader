@@ -4,7 +4,7 @@ require 'meta_data_downloader.rb'
 class Crawler
 
   def initialize (area_validator, db)
-    metadata_downloader  = MetaDataDownloader.new
+    @metadata_downloader  = MetaDataDownloader.new
   	@stats = Statistics.new
   	@db = db
     @area_validator = area_validator
@@ -15,12 +15,14 @@ class Crawler
     pano_ids.each do |pano_id|
       crawl(pano_id)
     end
-    metadata_downloader.start()
+    @metadata_downloader.start()
   end
 
   def crawl(panoID)
+
     @db.mark_to_crawl(panoID)
-    metadata_downloader.download(panoID) do | response|
+
+    @metadata_downloader.download(panoID) do | response|
 
       json = extract_json(response)
       panoID = json["Location"]["panoId"]
@@ -46,6 +48,7 @@ private
 
   def extract_json(data)
     result = JSON.parse(data)
+    #p result
     raise "web service error" if result.has_key? 'Error'
     result
   end

@@ -66,11 +66,16 @@ class ImageDownloader
 	def download_tile(zoom, x, y, panoID)
 		url = "/cbk?output=tile&zoom=#{zoom}&x=#{x}&y=#{y}&v=4&panoid=#{panoID}"
 		#resp = Net::HTTP.get_response(URI.parse(url))
-		resp = @conn.get do |req|
-			req.url url
-		  req.options[:timeout] = 2           # open/read timeout in seconds
-  		req.options[:open_timeout] = 2
+		begin
+			resp = @conn.get do |req|
+				req.url url
+			  req.options[:timeout] = 2           # open/read timeout in seconds
+	  		req.options[:open_timeout] = 2
+	  	end
+  	rescue Exception => err
+  		 raise Exception.new("error downloading tile #{panoID} #{x}x#{y} zoom:#{zoom}")
   	end
+
 		filename = "#{@tmp_path}/tile-#{panoID}-#{x}-#{y}.jpg"
 		open(filename, 'wb') do |file|
   		file.write(resp.body)

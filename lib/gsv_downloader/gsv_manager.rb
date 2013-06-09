@@ -30,7 +30,7 @@ class GSVManager
 	end
 
 	def crawl_metadata(from_pano_id = nil)
-			puts "#{@db.scrawled_count()} panoramas scrawled, #{@db.nb_panoramas()} withing the area"
+			puts "#{@db.crawled_count()} panoramas scrawled, #{@db.nb_panoramas()} withing the area"
 			if (from_pano_id.nil?)
 				pano_ids = @db.not_scrawled()
 				puts " #{pano_ids.size} panorama in the queue"
@@ -41,7 +41,7 @@ class GSVManager
 	end
 
 	def reset_crawl
-		puts "#{@db.scrawled_count()} panoramas scrawled, #{@db.nb_panoramas()} withing the area"
+		puts "#{@db.crawled_count()} panoramas scrawled, #{@db.nb_panoramas()} withing the area"
 		@db.reset_crawl
 	end
 

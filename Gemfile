@@ -14,4 +14,3 @@ gem 'faraday_middleware'
 
 gem 'parallel'
 gem 'ruby-progressbar'
-gem 'google_hash'
