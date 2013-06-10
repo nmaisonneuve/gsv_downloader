@@ -9,7 +9,14 @@ class MetaDataDownloader
 	BASE_URL = "https://cbks1.google.com/cbk?output=json&v=4&cb_client=apiv3&hl=en-US&oe=utf-8"
 
 
-	def initialize()
+	def initialize( include_depth = false)
+
+		@base_url = if include_depth
+			"#{BASE_URL}&dmz=1&pmz=1"
+		else
+			BASE_URL
+		end
+
 		#    # Typhoeus::Config.memoize = false
 	  # @conn = Faraday.new(:url => "http://cbk1.google.com") do |faraday|
 	  #    faraday.request :retry
@@ -27,7 +34,7 @@ class MetaDataDownloader
 	# enqueue a download
   def download(panoID)
 
-    url = "#{BASE_URL}&panoid=#{panoID}"
+    url = "#{@base_url}&panoid=#{panoID}"
     # p panoID
     # p url
 		request = Typhoeus::Request.new(url, headers: {
@@ -40,9 +47,7 @@ class MetaDataDownloader
       # Process the links in the response.
       	yield(response.body)
       else
-      	 puts "error "
-      	 #	p response
-         raise Exception.new
+         raise Exception.new("error to get meta_data of #{panoID} (response code #{response.code})")
       end
     end
     @hydra.queue request

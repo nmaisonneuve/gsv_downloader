@@ -90,7 +90,7 @@ namespace :gsv do
 	task :download_all_images do
 		options = {
 			area_name: "paris",
-			image_zoom: 3,
+			zoom_level: 3,
 			dest_dir: "./paris",
 			sub_dir_size: 1000
 		}

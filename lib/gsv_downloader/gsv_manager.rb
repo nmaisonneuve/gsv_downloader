@@ -79,7 +79,7 @@ class GSVManager
 			@dest_dir
 		end
 
-		FileUtils.mkdir_p(dir_dest) unless FileUtils.exists?(dir_dest)
+		FileUtils.mkdir_p(dir_dest) #unless FileUtils.exists?(dir_dest)
 		dir_dest
 	end
 end
