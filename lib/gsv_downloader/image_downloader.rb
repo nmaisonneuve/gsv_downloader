@@ -1,4 +1,4 @@
-require 'faraday'
+#require 'faraday'
 require 'fileutils'
 require "subexec"
 
@@ -14,7 +14,7 @@ class ImageDownloader
 		set_tmp_dir(tmp_path)
 
 		@conn = Faraday.new(:url => "http://cbk1.google.com") do |faraday|
-			faraday.request :retry, max: 3, interval: 2
+			#faraday.request :retry, max: 3, interval: 2
 			faraday.response :raise_error
 			faraday.adapter  Faraday.default_adapter
 		end
@@ -57,13 +57,14 @@ class ImageDownloader
 	def download_tiles(panoID, zoom_level)
 		tiles_filenames = []
 		get_tiles(zoom_level) do |x, y|
-			tiles_filenames << download_tile(zoom_level, x, y, panoID)
+			filename = "#{@tmp_path}/tile-#{panoID}-#{x}-#{y}.jpg"
+			tiles_filenames << download_tile(zoom_level, x, y, panoID, filename)
 			#puts "downloaded tile  x=#{x},y=#{y}"
 		end
 		tiles_filenames
 	end
 
-	def download_tile(zoom, x, y, panoID)
+	def download_tile(zoom, x, y, panoID, filename)
 		url = "/cbk?output=tile&zoom=#{zoom}&x=#{x}&y=#{y}&v=4&panoid=#{panoID}"
 		#resp = Net::HTTP.get_response(URI.parse(url))
 		begin
@@ -73,10 +74,11 @@ class ImageDownloader
 	  		req.options[:open_timeout] = 2
 	  	end
   	rescue Exception => err
+  		p err
   		 raise Exception.new("error downloading tile #{panoID} #{x}x#{y} zoom:#{zoom}")
   	end
 
-		filename = "#{@tmp_path}/tile-#{panoID}-#{x}-#{y}.jpg"
+
 		open(filename, 'wb') do |file|
   		file.write(resp.body)
 		end

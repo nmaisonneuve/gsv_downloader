@@ -9,7 +9,7 @@ namespace :gsv do
 		zoom = ENV["zoom"] || "3"
 		dest_dir = ENV["dest"] || "./images"
 
-		downloader = ImageDownloader.new
+		downloader = ImageDownloaderParallel.new
 		downloader.download(panoID,zoom.to_i,".")
 	end
 
@@ -35,23 +35,100 @@ namespace :gsv do
 		downloader.start()
 	end
 
-	desc "list"
-	task :list do
+	desc "generate a kml of panorama images"
+	task :kml do
   	options = {
-			area_name: "paris"
+			area_name: "A6"
 		}
 
 		manager = GSVManager.new(options)
+		db = manager.get_db
 		i = 0
-		kml = "<?xml version='1.0' encoding='utf-8' ?><kml xmlns='http://www.opengis.net/kml/2.2'><Document>"
+		kml = "<?xml version='1.0' encoding='utf-8' ?><kml xmlns='http://www.opengis.net/kml/2.2'><Document>
+			<Style id='MyStyle11'>
+		<IconStyle>
+			<color>ffbfc03f</color>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pal4/icon25.png</href>
+			</Icon>
+		</IconStyle>
+		<LineStyle>
+			<width>3.1</width>
+		</LineStyle>
+		<PolyStyle>
+			<color>ffbfc03f</color>
+		</PolyStyle>
+	</Style>
+	<Style id='MyStyle10'>
+		<IconStyle>
+			<color>ffbfc03f</color>
+			<Icon>
+				<href>http://maps.google.com/mapfiles/kml/pal4/icon25.png</href>
+			</Icon>
+		</IconStyle>
+		<LineStyle>
+			<width>3.1</width>
+		</LineStyle>
+		<PolyStyle>
+			<color>ffbfc03f</color>
+		</PolyStyle>
+	</Style>
+	<StyleMap id='MyStyle1'>
+		<Pair>
+			<key>normal</key>
+			<styleUrl>#MyStyle10</styleUrl>
+		</Pair>
+		<Pair>
+			<key>highlight</key>
+			<styleUrl>#MyStyle11</styleUrl>
+		</Pair>
+	</StyleMap>"
+
+		kml << "<Folder>
+		<name>intensity</name>
+		<visibility>0</visibility>
+		<open>1</open>"
 		manager.panoramas_index.each do |panoID|
+			detection = db.get_metadata(panoID+":sign")
+			p detection
 			i += 1
 			json = JSON.parse(manager.get_metadata(panoID))
 			lat = json["Location"]["lat"]
 			lng = json["Location"]["lng"]
-			kml << "<Placemark><description>#{panoID}</description><Point><coordinates>#{lng}, #{lat}, 0</coordinates></Point></Placemark>\n"
+			if (detection.to_i > 0)
+			kml <<"<Placemark>
+			<visibility>1</visibility>
+			<styleUrl>#MyStyle1</styleUrl>
+			<LineString>
+				<extrude>1</extrude>
+				<tessellate>1</tessellate>
+				<altitudeMode>absolute</altitudeMode>
+				<coordinates>#{lng},#{lat},#{400 * detection.to_i} "
+				kml << "</coordinates></LineString></Placemark>"
+			end
 		end
-		kml << "</Document></kml>"
+		kml << "</Folder>"
+		kml << "<Folder><name>points</name>"
+
+		manager.panoramas_index.each do |panoID|
+			detection = db.get_metadata(panoID+":sign")
+			p detection
+			i += 1
+			json = JSON.parse(manager.get_metadata(panoID))
+			lat = json["Location"]["lat"]
+			lng = json["Location"]["lng"]
+			if (detection.to_i > 0)
+				kml <<"<Placemark>
+				<name>t1</name>
+				<description><img src='file:///Users/nico/work/data/images/A6/tile-#{panoID}-3-1.jpg'/>("+detection+")</description>
+				<visibility>1</visibility>
+				<styleUrl>#MyStyle1</styleUrl>
+				<Point>
+	    <coordinates>#{lng},#{lat},0</coordinates></Point></Placemark>"
+  		end
+		end
+
+		kml << "</Folder></Document></kml>"
 		File.open("test.kml", 'w') {|f| f.write(kml) }
 		puts "#{i} panoID"
 	end
@@ -68,33 +145,70 @@ namespace :gsv do
 	 	# require 'perftools'
 	  # PerfTools::CpuProfiler.start("tmp/add_numbers_profile") do
 	  # end
+	  badly_described_panos = ["eJyt9NHF8uWRIolpck6v9w",
+	  "oINiMvJco2RzGZTC1Ib71g",
+		"DmpdHWaTSdVS3d4tW4QkCg"]
+
 	  area_validator = lambda { |json_response|
-				description = json_response["Location"]["region"]
-			#	p json_response["Location"]
-				description[/Paris/].nil? == false
+			panoID = json_response["Location"]["panoId"]
+			if badly_described_panos.include?(panoID)
+				true
+			else
+				description = json_response["Location"]["description"]
+				p json_response["Location"]
+
+				if description == ''
+					true
+				else
+					description[/A6A/].nil? == false || description[/du Soleil/].nil? == false || description[/E15/].nil? == false || description[/E60/].nil? == false
+				end
+			end
 		}
 
   	options = {
-			area_name: "paris_v2",
+			area_name: "A6",
 			area_validator: area_validator
 		}
 
 		manager = GSVManager.new(options)
 		#manager.reset_crawl
 		# Np2alC97cgynvV_ZpJQZNA
-	  # manager.crawl_metadata("C9n1hj8bYQ_sZdPiXylGoA")
-		manager.crawl_metadata()
+	   manager.crawl_metadata("DmpdHWaTSdVS3d4tW4QkCg", true)
+		# manager.crawl_metadata()
+	end
+
+
+	desc "download all panoramas in parallel mode"
+	task :download_all_images_par do
+		x = 3
+		y = 1
+		zoom_level = 3
+		data = []
+		db = DBRedis.new("A6")
+		db.images_to_download.each do |panoID|
+			filename = "../data/images/A6/tile-#{panoID}-#{x}-#{y}.jpg"
+			unless Pathname.new(filename).exist?
+				data << {
+					url: "http://cbk1.google.com/cbk?output=tile&zoom=#{zoom_level}&x=#{x}&y=#{y}&v=4&panoid=#{panoID}",
+					filename: filename
+				}
+			end
+		end
+		puts " #{data.size} images to download"
+		downloader = ImageDownloaderParallel.new
+		downloader.parallel_download(data)
 	end
 
 	desc "download all panoramas"
 	task :download_all_images do
 		options = {
-			area_name: "paris",
+			area_name: "A6",
 			zoom_level: 3,
-			dest_dir: "./paris",
+			dest_dir: "./A6",
 			sub_dir_size: 1000
 		}
+		downloader = ImageDownloader.new
 		manager = GSVManager.new(options)
-		manager.download_missing_images()
+		 manager.download_missing_images()
 	end
 end

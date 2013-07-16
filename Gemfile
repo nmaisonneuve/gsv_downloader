@@ -4,9 +4,9 @@ source 'https://rubygems.org'
 # database
 gem 'redis'
 gem "hiredis", "~> 0.4.5"
-gem 'sidekiq'
+#gem 'sidekiq'
 gem 'subexec'
-gem "perftools.rb"
+#gem "perftools.rb"
 # http client
 gem 'typhoeus', :git => "git://github.com/typhoeus/typhoeus.git"
 gem 'faraday', :git => 'git://github.com/lostisland/faraday.git'

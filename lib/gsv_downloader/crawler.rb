@@ -11,14 +11,14 @@ class Crawler
     @max = 200
   end
 
-  def start(pano_ids)
+  def start(pano_ids, force = false)
     pano_ids.each do |pano_id|
-      crawl(pano_id)
+      crawl(pano_id, force)
     end
     @metadata_downloader.start()
   end
 
-  def crawl(panoID)
+  def crawl(panoID, force = false)
 
     @db.mark_to_crawl(panoID)
 
@@ -28,15 +28,16 @@ class Crawler
       panoID = json["Location"]["panoId"]
       @stats.count
 
-      unless @db.crawled?(panoID)
+      if ((!@db.crawled?(panoID)) || force)
         @db.mark_as_crawled(panoID)
-
+        #p json
         # if inside the area
         if @area_validator.call(json)
           @db.add_pano(panoID, response) #TODO to save to save or whatever
 
           # for each valid and new link, crawl it
           extract_valid_links(json) do |link_id|
+
             crawl(link_id)
           end
         end

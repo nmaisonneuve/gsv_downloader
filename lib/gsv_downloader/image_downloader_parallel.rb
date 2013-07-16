@@ -9,6 +9,20 @@ class ImageDownloaderParallel < ImageDownloader
 		set_tmp_dir(tmp_path)
 	end
 
+ def parallel_download(data)
+		# process
+		hydra = Typhoeus::Hydra.new
+		data.each do | datum|
+			request = Typhoeus::Request.new(datum[:url])
+			request.on_complete do |response|
+				process_response(response, datum[:filename])
+    	end
+    	hydra.queue request
+		end
+		hydra.run
+		data.collect{ |datum| datum[:filename]}
+	end
+
 	def download_tiles(panoID, zoom_level)
 
 		# prepare the information for each tile
@@ -21,16 +35,7 @@ class ImageDownloaderParallel < ImageDownloader
 			}
 		end
 
-		# process
-		hydra = Typhoeus::Hydra.new
-		data.each do | datum|
-			request = Typhoeus::Request.new(datum[:url])
-			request.on_complete do |response|
-				process_response(response, datum[:filename])
-    	end
-    	hydra.queue request
-		end
-		hydra.run
+		parallel_download(data)
 		data.collect{ |datum| datum[:filename]}
 	end
 
