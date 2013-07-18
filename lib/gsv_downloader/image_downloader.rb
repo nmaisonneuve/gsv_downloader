@@ -1,4 +1,4 @@
-#require 'faraday'
+require 'faraday'
 require 'fileutils'
 require "subexec"
 
@@ -14,7 +14,7 @@ class ImageDownloader
 		set_tmp_dir(tmp_path)
 
 		@conn = Faraday.new(:url => "http://cbk1.google.com") do |faraday|
-			#faraday.request :retry, max: 3, interval: 2
+			# faraday.request :retry, max: 3, interval: 2
 			faraday.response :raise_error
 			faraday.adapter  Faraday.default_adapter
 		end
