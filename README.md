@@ -20,7 +20,10 @@ redis install
 https://www.digitalocean.com/community/articles/how-to-install-and-use-redis
 
 
+## install on Mac ##
+
 brew install redis
+
 brew install imagemagick
 
 
