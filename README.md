@@ -10,6 +10,16 @@ you need to install
 - [http://redis.io redis] as light database
 - [http://www.imagemagick.org/ imagemagick]  
 
+
+## install on Ubunutu / Linux ##
+
+ruby install 
+https://www.digitalocean.com/community/articles/how-to-install-ruby-on-rails-on-ubuntu-12-04-lts-precise-pangolin-with-rvm
+
+redis install
+https://www.digitalocean.com/community/articles/how-to-install-and-use-redis
+
+
 brew install redis
 brew install imagemagick
 
