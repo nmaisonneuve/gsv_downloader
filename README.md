@@ -2,7 +2,7 @@ Google Street View Downloader
 
 ## Description ##
 Crawl and save Google Street view network (metadata + images) of a given geographical area. The metadata are saved into a redis db and the image in a directory
-(speed: meta_data of 200 location processed / second  (= the complete meta_data of all the images of Paris are crawled in about 10 mins. for the images, it depends on the image zoom you set)
+(speed: meta_data of 200 locations processed / second  (= the complete meta_data of all the images of Paris are crawled in about 10 mins. for the images, it depends on the image zoom you set)
 
 
 ## requirement ##
