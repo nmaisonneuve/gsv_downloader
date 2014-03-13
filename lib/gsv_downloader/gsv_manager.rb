@@ -69,7 +69,7 @@ class GSVManager
 		# by default  1 thread but you can increase the multi-tread
 		i = 0
 		Parallel.each(pano_ids,
-			:in_threads => 1,
+			:in_threads => 20,
 			:finish => lambda { |i, item| progress.increment }) do |pano_id|
 				@downloader.download(pano_id, @zoom_level, get_dir(i))
 				stats.count

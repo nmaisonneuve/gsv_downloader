@@ -180,13 +180,14 @@ namespace :gsv do
 
 	desc "download all panoramas in parallel mode"
 	task :download_all_images_par do
+		area = "paris"
 		x = 3
 		y = 1
 		zoom_level = 3
 		data = []
-		db = DBRedis.new("A6")
+		db = DBRedis.new("paris")
 		db.images_to_download.each do |panoID|
-			filename = "../data/images/A6/tile-#{panoID}-#{x}-#{y}.jpg"
+			filename = "./images/#{area}/tile-#{panoID}-#{x}-#{y}.jpg"
 			unless Pathname.new(filename).exist?
 				data << {
 					url: "http://cbk1.google.com/cbk?output=tile&zoom=#{zoom_level}&x=#{x}&y=#{y}&v=4&panoid=#{panoID}",
@@ -201,13 +202,14 @@ namespace :gsv do
 
 	desc "download all panoramas"
 	task :download_all_images do
+		area = "paris"
 		options = {
-			area_name: "A6",
+			area_name: area,
 			zoom_level: 3,
-			dest_dir: "./A6",
+			dest_dir: "./#{area}",
 			sub_dir_size: 1000
 		}
-		downloader = ImageDownloader.new
+		#downloader = ImageDownloader.new
 		manager = GSVManager.new(options)
 		 manager.download_missing_images()
 	end

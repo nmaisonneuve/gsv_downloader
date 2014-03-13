@@ -1,6 +1,7 @@
 require 'faraday'
 require 'fileutils'
 require "subexec"
+require 'pathname'
 
 ##
 # Google Street View Images Downloader
@@ -13,7 +14,7 @@ class ImageDownloader
 
 		set_tmp_dir(tmp_path)
 
-		@conn = Faraday.new(:url => "http://cbk1.google.com") do |faraday|
+		@conn = Faraday.new(:url => "https://geo2.ggpht.com/") do |faraday|
 			# faraday.request :retry, max: 3, interval: 2
 			faraday.response :raise_error
 			faraday.adapter  Faraday.default_adapter
@@ -65,13 +66,15 @@ class ImageDownloader
 	end
 
 	def download_tile(zoom, x, y, panoID, filename)
-		url = "/cbk?output=tile&zoom=#{zoom}&x=#{x}&y=#{y}&v=4&panoid=#{panoID}"
+		url = "/cbk?output=tile&zoom=#{zoom}&x=#{x}&y=#{y}&panoid=#{panoID}"
+
 		#resp = Net::HTTP.get_response(URI.parse(url))
 		begin
 			resp = @conn.get do |req|
 				req.url url
 			  req.options[:timeout] = 2           # open/read timeout in seconds
 	  		req.options[:open_timeout] = 2
+	  		
 	  	end
   	rescue Exception => err
   		p err
@@ -95,20 +98,48 @@ class ImageDownloader
 		end
 	end
 
-	def crop_pano(panoID, zoom_level, dest_filename)
-		crop = case zoom_level
-			when 3 then "#{3584 - 256}x#{2048 - 384}"
-			when 4 then "#{6656}x#{3584 - 256}" #-256
-			when 5 then "#{13312}x#{6656}"
+	def crop_pano(panoID, zoom_level, dest_filename, pov = true)
+		
+		if (pov)
+			crop = case zoom_level
+				when 1 then "#{440}x#{200}"
+				when 2 then "#{2048 - 384}x#{1024 - 256}"
+				when 3 then "#{3584 - 256}x#{2048 - 384}"
+				when 4 then "#{6656}x#{3584 - 256}" #-256
+				when 5 then "#{13312}x#{6656}"
+			end
+			offset = case zoom_level				
+				when 1 then "#{180}+#{100}"
+				when 2 then "#{2048 - 384}x#{1024 - 256}"
+				when 3 then "#{3584 - 256}x#{2048 - 384}"
+				when 4 then "#{6656}x#{3584 - 256}" #-256
+				when 5 then "#{13312}x#{6656}"
+			end
+		else
+			crop = case zoom_level
+				when 0 then "#{512 - 96}x#{512 - 304}"
+				when 1 then "#{1024 - 256}x#{512 - 128}"
+				when 2 then "#{2048 - 384}x#{1024 - 256}"
+				when 3 then "#{3584 - 256}x#{2048 - 384}"
+				when 4 then "#{6656}x#{3584 - 256}" #-256
+				when 5 then "#{13312}x#{6656}"
+			end
+			offset = "0+0"
 		end
+
+		
+
+
 		# WARNING: may not overwrite previous file
-		cmd = "convert #{@tmp_path}/#{panoID}.jpg  -crop #{crop}+0+0  #{dest_filename} "
+		cmd = "convert #{@tmp_path}/#{panoID}.jpg  -crop #{crop}+#{offset}  #{dest_filename} "
  		 Subexec.run cmd, :timeout => 0
 	end
 
 	def get_nb_tiles(zoom_level, axis)
-		zoom_level -= 1 if axis == :y
+		zoom_level -= 1 if axis == :y and zoom_level> 0
 		case zoom_level
+		  when 0 then 1
+			when 1 then 2
 			when 2 then 4
 			when 3 then 7
 			when 4 then 13
