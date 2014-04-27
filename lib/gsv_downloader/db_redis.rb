@@ -40,6 +40,10 @@ class DBRedis
     @redis.scard("area:#{@area}:crawled")
   end
 
+  def to_crawl_count()
+    @redis.scard("area:#{@area}:crawl_queue")
+  end
+
   def nb_panoramas()
 		@redis.scard("area:#{@area}")
 	end

@@ -1,13 +1,24 @@
 require 'rubygems'
 require 'gsv_downloader'
 
-def crawl 
-	area_validator = lambda { |json_response|			
-			description = json_response["Location"]["description"]
-				region = json_response["Location"]["region"]
-			#p json_response["Location"]
+def crawl_from_postalcode(postalcode, lat = nil,lng = nil)
+	
+	data = GSVManager.get_info_from_postalcode(postalcode)
+	
+	city = data[:city]
+	puts "---  CRAWLING #{city} - #{postalcode}"
 
-			if region[/Vincennes/].nil?
+	if (lat.nil?)
+		start_panoID = data[:pano_id]
+	else
+		start_panoID = GSVManager.get_pano_id(lat,lng)
+	end
+
+	area_validator = lambda { |json_response|			
+			# puts "checking validity" 
+			description = json_response["Location"]["description"]
+			region = json_response["Location"]["region"]
+			if region[/#{city}/i].nil?
 				false
 			else
 				true
@@ -15,20 +26,17 @@ def crawl
 	}
 
 	options = {
-		area_name: "vincennes",
+		area_name: postalcode,
 		area_validator: area_validator
 	}
 
-	manager = GSVManager.new(options)
-	#manager.reset_crawl
-	# Np2alC97cgynvV_ZpJQZNA
-
-	# manager.crawl_metadata("Xf0Yb8ePnZwE25F_doMQAA&w=88", true)
-	manager.crawl_metadata()
+	manager = GSVManager.new(options)	
+ 	manager.crawl_metadata(	start_panoID, true) 
+ 	manager.crawl_metadata() 	
 end
 
-def image
 
+def image
 	area = "vincennes"
 	options = {
 		area_name: area,
@@ -37,11 +45,11 @@ def image
 		sub_dir_size: 1000
 	}
 
-
-		#downloader = ImageDownloader.new
+	# downloader = ImageDownloader.new
 	manager = GSVManager.new(options)
 	manager.download_missing_images()
-
 end
 
-image()
+# crawl_from_postalcode("91390")
+crawl_from_postalcode("95610",49.017751,2.104865)
+

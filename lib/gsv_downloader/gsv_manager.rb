@@ -27,6 +27,31 @@ class GSVManager
 		@dest_dir = options[:dest_dir] || "./images/#{options[:area_name]}"
 	end
 
+	def self.get_info_from_postalcode(postal_code)
+		url ="http://maps.googleapis.com/maps/api/geocode/json?components=country:FR|postal_code:#{postal_code}&sensor=true"			
+		json = JSON.parse(Typhoeus.get(url).body)
+
+		city = json["results"][0]["address_components"][1]["short_name"]
+			
+		location = json["results"][0]["geometry"]["location"]
+		
+		url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=#{location["lat"]},#{location["lng"]}&sensor=true"		
+		json = JSON.parse(Typhoeus.get(url).body)
+		location2 = json["results"][0]["geometry"]["location"]
+		p location
+		p location2
+		pano_id = self.get_pano_id(location2["lat"],  location2["lng"])
+
+		{lat: location2["lat"], lng: location2["lng"], city: city, pano_id:pano_id}
+	end
+
+	def self.get_pano_id(lat, lng)
+		url ="https://geo0.ggpht.com/cbk?cb_client=maps_sv.tactile&authuser=0&hl=fr&output=json&ll=#{lat},#{lng}"			
+		p url
+		data = JSON.parse(Typhoeus.get(url).body)["Location"]["panoId"]
+		data
+	end
+
 	def panoramas_index
 		@db.list()
 	end
@@ -39,7 +64,7 @@ class GSVManager
 			puts "#{@db.crawled_count()} panoramas scrawled, #{@db.nb_panoramas()} withing the area"
 			if (from_pano_id.nil?)
 				pano_ids = @db.not_scrawled()
-				puts " #{pano_ids.size} panorama in the queue"
+				# puts " #{pano_ids.size} panorama in the queue"
 				@scrawler.start(pano_ids) if pano_ids.size > 0
 			else
 				@scrawler.start([from_pano_id], force )
@@ -47,7 +72,7 @@ class GSVManager
 	end
 
 	def reset_crawl
-		puts "#{@db.crawled_count()} panoramas scrawled, #{@db.nb_panoramas()} withing the area"
+		puts "RESETING CRAWLING #{@db.crawled_count()} panoramas scrawled, #{@db.nb_panoramas()} withing the area"
 		@db.reset_crawl
 	end
 
