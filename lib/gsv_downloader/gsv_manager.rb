@@ -31,7 +31,8 @@ class GSVManager
 	end
 
 	def self.get_info_from_postalcode(postal_code)
-		url ="http://maps.googleapis.com/maps/api/geocode/json?components=country:FR|postal_code:#{postal_code}&sensor=true"			
+		# url ="http://maps.googleapis.com/maps/api/geocode/json?address=mairie,#{postalc_code}components=country:FR|postal_code:#{postal_code}&sensor=true"			
+		url ="http://maps.googleapis.com/maps/api/geocode/json?address=mairie,#{postal_code}&components=country:FR|postal_code:#{postal_code}&sensor=true"			
 		json = JSON.parse(Typhoeus.get(url).body)
 
 		city = json["results"][0]["address_components"][1]["short_name"]
