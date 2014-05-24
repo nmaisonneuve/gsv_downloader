@@ -14,7 +14,10 @@ class GSVManager
 	#			dest_dir: "./paris",
 	#			sub_dir_size: 1000
 	#		}
+	def import_sql()
 
+	end
+	
 	def initialize(options)
 		@options = options
 		#@downloader = ImageDownloaderParallel.new
