@@ -34,13 +34,20 @@ class GSVManager
 		# url ="http://maps.googleapis.com/maps/api/geocode/json?address=mairie,#{postalc_code}components=country:FR|postal_code:#{postal_code}&sensor=true"			
 		url ="http://maps.googleapis.com/maps/api/geocode/json?address=mairie,#{postal_code}&components=country:FR|postal_code:#{postal_code}&sensor=true"			
 		json = JSON.parse(Typhoeus.get(url).body)
-
 		city = nil
-		json["results"][0]["address_components"].each do | component |
-			 if (component["types"].include?("locality"))
-			 	city = component["short_name"]
-			 end
+		
+		begin			
+			json["results"][0]["address_components"].each do | component |
+				 if (component["types"].include?("locality"))
+				 	city = component["short_name"]
+				 end
+			end
+		rescue  Exception 
+			puts "ERROR POSTAL CODE url: #{url}"
+			p json
+			raise Exception.new("No city found ")
 		end
+
 		if city.nil?
 			p json["results"]
 			raise Exception.new("No city found ")
