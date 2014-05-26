@@ -98,7 +98,7 @@ class ImageDownloader
 		end
 	end
 
-	def crop_pano(panoID, zoom_level, dest_filename, pov = true)
+	def crop_pano(panoID, zoom_level, dest_filename, pov = false)
 		
 		if (pov)
 			crop = case zoom_level
