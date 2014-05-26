@@ -27,7 +27,7 @@ class ImageDownloader
 	end
 
 
-	def download(panoID,  zoom_level = 4, dest_dir = "./images")
+	def download(panoID,  zoom_level = 4, dest_dir = "./images", pov = false)
 
 		FileUtils.mkdir_p(dest_dir) #create dir if not already present
 
@@ -44,13 +44,17 @@ class ImageDownloader
 			combine_tiles(tiles_filenames, zoom_level, panoID)
 
 			# crop panorama
-			crop_pano(panoID, zoom_level, dest_filename)
+			crop_pano(panoID, zoom_level, dest_filename, pov)
 
 			# remove tmps
-			FileUtils.rm_f("#{@tmp_path}/#{panoID}.jpg")
-			tiles_filenames.each do |tile_filename|
-		  	FileUtils.rm_f(tile_filename)
-		  end
+			remove_tmp = true
+			if (remove_tmp)
+				puts "removing tmp file"
+				FileUtils.rm_f("#{@tmp_path}/#{panoID}.jpg")
+				tiles_filenames.each do |tile_filename|
+			  	FileUtils.rm_f(tile_filename)
+			  end
+			end
 		end
 	  dest_filename
 	end
@@ -118,7 +122,7 @@ class ImageDownloader
 		else
 			crop = case zoom_level
 				when 0 then "#{512 - 96}x#{512 - 304}"
-				when 1 then "#{1024 - 256}x#{512 - 128}"
+				when 1 then "#{1024 - 192}x#{512 - 128}"
 				when 2 then "#{2048 - 384}x#{1024 - 256}"
 				when 3 then "#{3584 - 256}x#{2048 - 384}"
 				when 4 then "#{6656}x#{3584 - 256}" #-256
@@ -127,9 +131,10 @@ class ImageDownloader
 			offset = "0+0"
 		end
 
+		if (pov) 
+			dest_filename = dest_filename.gsub(".jpg","_pov.jpg")
+		end
 		
-
-
 		# WARNING: may not overwrite previous file
 		cmd = "convert #{@tmp_path}/#{panoID}.jpg  -crop #{crop}+#{offset}  #{dest_filename} "
  		 Subexec.run cmd, :timeout => 0

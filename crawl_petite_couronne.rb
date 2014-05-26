@@ -1,5 +1,13 @@
-require 'rubygems'
-require 'gsv_downloader'
+require './lib/gsv_downloader.rb'
+
+def test_image
+
+ img_downloader = ImageDownloader.new
+#img_downloader.download(pano_id)
+img_downloader.download("N2Njt59Vg1UtL0SNjwG_8Q",  zoom_level = 0, dest_dir = "./images/")
+end
+
+
 
 def crawl_from_postalcode(postalcode, lat = nil,lng = nil)
 	
@@ -50,6 +58,7 @@ def image
 	manager.download_missing_images()
 end
 
+test_image
 # crawl_from_postalcode("91390")
-crawl_from_postalcode("95610",49.017751,2.104865)
+# crawl_from_postalcode("95610",49.017751,2.104865)
 
