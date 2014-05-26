@@ -85,7 +85,6 @@ class ImageDownloader
   		 raise Exception.new("error downloading tile #{panoID} #{x}x#{y} zoom:#{zoom}")
   	end
 
-
 		open(filename, 'wb') do |file|
   		file.write(resp.body)
 		end
@@ -122,7 +121,7 @@ class ImageDownloader
 		else
 			crop = case zoom_level
 				when 0 then "#{512 - 96}x#{512 - 304}"
-				when 1 then "#{1024 - 192}x#{512 - 128}"
+				when 1 then "#{1024 - 192}x#{512 - 96}"
 				when 2 then "#{2048 - 384}x#{1024 - 256}"
 				when 3 then "#{3584 - 256}x#{2048 - 384}"
 				when 4 then "#{6656}x#{3584 - 256}" #-256
@@ -134,7 +133,7 @@ class ImageDownloader
 		if (pov) 
 			dest_filename = dest_filename.gsub(".jpg","_pov.jpg")
 		end
-		
+
 		# WARNING: may not overwrite previous file
 		cmd = "convert #{@tmp_path}/#{panoID}.jpg  -crop #{crop}+#{offset}  #{dest_filename} "
  		 Subexec.run cmd, :timeout => 0

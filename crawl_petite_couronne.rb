@@ -4,7 +4,7 @@ def test_image
 
  img_downloader = ImageDownloader.new
 #img_downloader.download(pano_id)
-img_downloader.download("N2Njt59Vg1UtL0SNjwG_8Q",  zoom_level = 0, dest_dir = "./images/")
+img_downloader.download("N2Njt59Vg1UtL0SNjwG_8Q",  zoom_level = 1, dest_dir = "./images/")
 end
 
 
